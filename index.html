@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My To-Do List</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffe0ec, #e5ddff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      color: #342642;
+    }
+
+    .app {
+      background: white;
+      width: 100%;
+      max-width: 480px;
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: 0 15px 45px #6c467d22;
+    }
+
+    h1 { margin-bottom: 8px; }
+    .subtitle { color: #887b91; margin-bottom: 24px; }
+
+    .entry {
+      display: flex;
+      gap: 8px;
+    }
+
+    input {
+      min-width: 0;
+      flex: 1;
+      padding: 13px;
+      border: 1px solid #e3d9ed;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 15px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .add { background: #8956c7; color: white; }
+
+    #tasks {
+      list-style: none;
+      padding: 0;
+      margin-top: 22px;
+    }
+
+    #tasks li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 0;
+      border-bottom: 1px solid #f0eaf5;
+      overflow-wrap: anywhere;
+    }
+
+    #tasks li span { flex: 1; }
+
+    #tasks li.done span {
+      text-decoration: line-through;
+      color: #a49aaa;
+    }
+
+    .delete { background: #fff0f3; color: #b34464; }
+    .empty { color: #988ba0; text-align: center; padding: 18px 0; }
+
+    .footer {
+      margin-top: 20px;
+      color: #887b91;
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>🌷 My To-Do List</h1>
+    <p class="subtitle">Little steps make big things happen!</p>
+
+    <form class="entry" id="task-form">
+      <input id="task-input" placeholder="What do you need to do?" maxlength="150" aria-label="New task">
+      <button class="add" type="submit">Add +</button>
+    </form>
+
+    <ul id="tasks"></ul>
+    <p class="footer" id="count">0 tasks to do ✨</p>
+  </main>
+
+  <script>
+    const form = document.getElementById("task-form");
+    const input = document.getElementById("task-input");
+    const list = document.getElementById("tasks");
+    const count = document.getElementById("count");
+    const tasks = [];
+
+    function renderTasks() {
+      list.replaceChildren();
+
+      if (tasks.length === 0) {
+        const message = document.createElement("li");
+        message.className = "empty";
+        message.textContent = "No tasks yet. Add your first one! 💕";
+        list.appendChild(message);
+      }
+
+      tasks.forEach((task, index) => {
+        const item = document.createElement("li");
+        if (task.done) item.classList.add("done");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+        checkbox.setAttribute("aria-label", "Complete " + task.text);
+        checkbox.addEventListener("change", () => {
+          task.done = checkbox.checked;
+          renderTasks();
+        });
+
+        const label = document.createElement("span");
+        label.textContent = task.text;
+
+        const remove = document.createElement("button");
+        remove.className = "delete";
+        remove.textContent = "Delete";
+        remove.setAttribute("aria-label", "Delete " + task.text);
+        remove.addEventListener("click", () => {
+          tasks.splice(index, 1);
+          renderTasks();
+        });
+
+        item.append(checkbox, label, remove);
+        list.appendChild(item);
+      });
+
+      const remaining = tasks.filter(task => !task.done).length;
+      count.textContent = remaining + " tasks to do ✨";
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text) {
+        input.focus();
+        return;
+      }
+
+      tasks.push({ text, done: false });
+      input.value = "";
+      renderTasks();
+      input.focus();
+    });
+
+    renderTasks();
+  </script>
+</body>
+</html>
